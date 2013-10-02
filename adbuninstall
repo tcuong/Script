@@ -1,0 +1,54 @@
+#!/bin/bash
+
+add_to_menu(){
+    NORMAL=`echo "\033[m"`
+    MENU=`echo "\033[36m"` #Blue
+    NUMBER=`echo "\033[33m"` #yellow
+    FGRED=`echo "\033[41m"`
+    RED_TEXT=`echo "\033[31m"`
+    ENTER_LINE=`echo "\033[33m"`
+
+    echo -e "${NUMBER} $2 )${MENU} $1 ${NORMAL}"
+}
+
+name=$1
+option=$2
+
+allPacks=`adb shell pm list packages -f | grep -i $name `
+
+if [[ "$allPacks" = "" ]]; then 
+    echo "No such packages"
+    exit;
+else
+
+	i=1
+	echo "$allPacks" | while read line 
+	do
+		package=`echo $line | sed -E 's/(^.*=)//'`
+		add_to_menu $package $i
+		i=$((i+1))
+	done
+
+    read opt
+
+	    # found=false
+    index=1
+
+    echo "$allPacks" | while read line 
+	do
+		if [[ "$index" = "$opt" ]] ; then
+			package=`echo -e $line | sed -E 's/(^.*=)//' | tr -d "\r"`
+			found=true
+
+			echo $package;
+			adb uninstall "$package";
+		fi
+		index=$((index+1))
+	done
+
+	# echo $found	
+	# if [[ "$found" != "true" ]] ; then
+	# 	echo "You select none"
+	# fi
+fi
+
